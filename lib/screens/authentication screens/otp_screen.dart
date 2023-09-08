@@ -1,9 +1,19 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pinput/pinput.dart';
+import 'package:vidmedia/models/usermodel.dart';
+import 'package:vidmedia/screens/authentication%20screens/sIgnup_with_phone.dart';
+import 'package:vidmedia/screens/homepage.dart';
+
+import '../../bloc/phone_credential_bloc.dart';
 
 class OtpScreen extends StatefulWidget {
-  // final String verificationId;
-  // const OtpScreen({required this.verificationId});
+  final String verificationId;
+  String? phonenumber;
+
+  OtpScreen({required this.verificationId, required this.phonenumber});
 
   @override
   State<OtpScreen> createState() => _OtpScreenState();
@@ -11,6 +21,9 @@ class OtpScreen extends StatefulWidget {
 
 class _OtpScreenState extends State<OtpScreen> {
   String? otpCode;
+
+  FirebaseAuth auth = FirebaseAuth.instance;
+  bool? _isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -99,10 +112,13 @@ class _OtpScreenState extends State<OtpScreen> {
                           width: MediaQuery.of(context).size.width,
                           height: 50,
                           child: ElevatedButton(
-                            child: Text("Verify"),
+                            child: isLoading
+                                ? CircularProgressIndicator()
+                                : Text("Verify"),
                             onPressed: () {
                               if (otpCode != null) {
-                                verifyOtp(context, otpCode!);
+                                verifyOtp(
+                                    context, widget.phonenumber!, otpCode!);
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
@@ -139,7 +155,54 @@ class _OtpScreenState extends State<OtpScreen> {
   }
 
   // verify otp
-  void verifyOtp(BuildContext context, String userOtp) {
+  void verifyOtp(
+      BuildContext context, String phonenumber, String userOtp) async {
+    setState(() {
+      _isLoading = true;
+    });
+    final credential = PhoneAuthProvider.credential(
+        verificationId: widget.verificationId, smsCode: userOtp);
+
+    BlocProvider.of<PhoneCredentialBloc>(context).add(
+        PhoneCredentialReceivingEvent(credential: credential.verificationId));
+
+    try {
+      await auth.signInWithCredential(credential);
+
+      final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+      DocumentSnapshot snap = await _firestore
+          .collection('users')
+          .doc(credential.verificationId)
+          .get();
+
+      //String? email = UserModel.fromSnap(snap)!.email;
+
+      // if (snap.e == null) {
+
+      // }
+      if (snap['email'] != null) {
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+                builder: (context) => HomePage(
+                      isloggedinviaphonenumber: true,
+                    )),
+            (route) => false);
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = true;
+      });
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+              builder: (context) => SignupWithPhone(
+                    mobilenumber: phonenumber,
+                    id: credential.verificationId,
+                  )),
+          (route) => false);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+    }
     //final ap = Provider.of<AuthProvider>(context, listen: false);
     // ap.verifyOtp(
     //   context: context,

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:vidmedia/addpost_screen.dart';
+import 'package:vidmedia/screens/addpost_screen.dart';
 
-import 'package:vidmedia/feed_screen.dart';
+import 'package:vidmedia/screens/feed_screen.dart';
 
-import 'package:vidmedia/user_details.screen.dart';
+import 'package:vidmedia/screens/user_details.screen.dart';
 
 class HomePage extends StatefulWidget {
+  final bool? isloggedinviaphonenumber;
+
+  HomePage({required this.isloggedinviaphonenumber});
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -25,7 +28,15 @@ class _HomePageState extends State<HomePage> {
             Tab(icon: Icon(Icons.account_circle_sharp), text: "profile"),
           ]),
         ),
-        body: TabBarView(children: [FeedScreen(), AddPost(), UserDetails()]),
+        body: TabBarView(children: [
+          FeedScreen(),
+          AddPost(
+            isloggedinbyphone: widget.isloggedinviaphonenumber,
+          ),
+          UserDetails(
+            isloggedinbyphone: widget.isloggedinviaphonenumber,
+          )
+        ]),
         // Center(
         //     child: Column(
         //   children: [

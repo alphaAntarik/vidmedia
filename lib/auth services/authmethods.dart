@@ -2,19 +2,26 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:vidmedia/feedmodel.dart';
-import 'package:vidmedia/usermodel.dart';
+import 'package:vidmedia/models/feedmodel.dart';
+import 'package:vidmedia/models/usermodel.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class AuthMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  //mobile varification
+
   //get user details
   Future<UserModel?> getUserDetails() async {
     User currentUser = _auth.currentUser!;
     DocumentSnapshot snap =
         await _firestore.collection('users').doc(currentUser.uid).get();
+    return UserModel.fromSnap(snap);
+  }
+
+  Future<UserModel?> getPhoneUserDetails(String id) async {
+    DocumentSnapshot snap = await _firestore.collection('users').doc(id).get();
     return UserModel.fromSnap(snap);
   }
 
@@ -30,6 +37,19 @@ class AuthMethods {
       return [];
     }
   }
+
+  // //get mobile numbers
+  // Future<List<DocumentSnapshot>> getUserNumbers() async {
+  //   try {
+  //     QuerySnapshot querySnapshot =
+  //         await FirebaseFirestore.instance.collection('users').get();
+  //     List<DocumentSnapshot> documents = querySnapshot.docs;
+  //     return documents;
+  //   } catch (e) {
+  //     print("Error retrieving data: $e");
+  //     return [];
+  //   }
+  // }
 
   // Future<List<FeedModel?>> getFeedDetails() async {
   //   User currentUser = _auth.currentUser!;

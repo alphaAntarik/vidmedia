@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-import 'package:vidmedia/authmethods.dart';
-import 'package:vidmedia/videoPlayer.dart';
+import 'package:vidmedia/auth%20services/authmethods.dart';
+import 'package:vidmedia/widgets/videoPlayer.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});

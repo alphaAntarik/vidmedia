@@ -6,7 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:vidmedia/authmethods.dart';
+import 'package:vidmedia/auth%20services/authmethods.dart';
 
 class SignupScreen extends StatefulWidget {
   static final String id = 'signup_screen';
@@ -17,10 +17,20 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
-  String? _name;
-  String? _email;
-  String? _password;
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final mobileController = TextEditingController();
+  final passwordController = TextEditingController();
   String? _phoneNumber;
+
+  @override
+  void dispose() {
+    super.dispose();
+    nameController.dispose();
+    emailController.dispose();
+    mobileController.dispose();
+    passwordController.dispose();
+  }
 
   bool _isLoading = false;
   File? _userImageFile;
@@ -40,9 +50,9 @@ class _SignupScreenState extends State<SignupScreen> {
       }
       // Logging in the user w/ Firebase
       String result = await AuthMethods().signUpUser(
-          name: _name,
-          email: _email,
-          password: _password,
+          name: nameController.text.trim(),
+          email: emailController.text.trim(),
+          password: passwordController.text.trim(),
           phoneNumber: _phoneNumber,
           image_url: _userImageFile);
       if (result != 'success') {
@@ -138,23 +148,16 @@ class _SignupScreenState extends State<SignupScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
+                    textFeld(
+                        hintText: "Jhon Smith",
+                        icon: Icons.account_circle_outlined,
+                        inputType: TextInputType.name,
+                        maxLines: 1,
+                        controller: nameController),
+
                     Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 30.0,
-                        vertical: 10.0,
-                      ),
-                      child: TextFormField(
-                        decoration: InputDecoration(labelText: 'Name'),
-                        validator: (input) => input!.trim().isEmpty
-                            ? 'Please enter a valid name'
-                            : null,
-                        onSaved: (input) => _name = input!,
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 30.0,
-                        vertical: 10.0,
+                      padding: EdgeInsets.only(
+                        bottom: 10,
                       ),
                       child: TextFormField(
                         maxLines: 1,
@@ -226,33 +229,45 @@ class _SignupScreenState extends State<SignupScreen> {
                     //     onSaved: (input) => _phoneNumber = input!,
                     //   ),
                     // ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 30.0,
-                        vertical: 10.0,
-                      ),
-                      child: TextFormField(
-                        decoration: InputDecoration(labelText: 'Email'),
-                        validator: (input) => !input!.contains('@')
-                            ? 'Please enter a valid email'
-                            : null,
-                        onSaved: (input) => _email = input!,
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 30.0,
-                        vertical: 10.0,
-                      ),
-                      child: TextFormField(
-                        decoration: InputDecoration(labelText: 'Password'),
-                        validator: (input) => input!.length < 6
-                            ? 'Must be at least 6 characters'
-                            : null,
-                        onSaved: (input) => _password = input!,
-                        obscureText: true,
-                      ),
-                    ),
+                    textFeld(
+                        hintText: "xys@gmail.com",
+                        icon: Icons.email_outlined,
+                        inputType: TextInputType.emailAddress,
+                        maxLines: 1,
+                        controller: emailController),
+                    textFeld(
+                        hintText: "xys1234@#",
+                        icon: Icons.password,
+                        inputType: TextInputType.visiblePassword,
+                        maxLines: 1,
+                        controller: passwordController),
+                    // Padding(
+                    //   padding: EdgeInsets.symmetric(
+                    //     horizontal: 30.0,
+                    //     vertical: 10.0,
+                    //   ),
+                    //   child: TextFormField(
+                    //     decoration: InputDecoration(labelText: 'Email'),
+                    //     validator: (input) => !input!.contains('@')
+                    //         ? 'Please enter a valid email'
+                    //         : null,
+                    //     onSaved: (input) => _email = input!,
+                    //   ),
+                    // ),
+                    // Padding(
+                    //   padding: EdgeInsets.symmetric(
+                    //     horizontal: 30.0,
+                    //     vertical: 10.0,
+                    //   ),
+                    //   child: TextFormField(
+                    //     decoration: InputDecoration(labelText: 'Password'),
+                    //     validator: (input) => input!.length < 6
+                    //         ? 'Must be at least 6 characters'
+                    //         : null,
+                    //     onSaved: (input) => _password = input!,
+                    //     obscureText: true,
+                    //   ),
+                    // ),
                     SizedBox(height: 20.0),
                     Padding(
                       padding: EdgeInsets.only(
@@ -291,6 +306,55 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget textFeld({
+    required String hintText,
+    required IconData icon,
+    required TextInputType inputType,
+    required int maxLines,
+    required TextEditingController controller,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: TextFormField(
+        cursorColor: Colors.purple,
+        controller: controller,
+        keyboardType: inputType,
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          prefixIcon: Container(
+            margin: const EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: Colors.purple,
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: Colors.white,
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(
+              color: Colors.transparent,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(
+              color: Colors.transparent,
+            ),
+          ),
+          hintText: hintText,
+          alignLabelWithHint: true,
+          border: InputBorder.none,
+          fillColor: Colors.purple.shade50,
+          filled: true,
         ),
       ),
     );

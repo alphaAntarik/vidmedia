@@ -5,12 +5,13 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
-import 'package:vidmedia/authmethods.dart';
-import 'package:vidmedia/feed_screen.dart';
-import 'package:vidmedia/homepage.dart';
+import 'package:vidmedia/auth%20services/authmethods.dart';
+import 'package:vidmedia/screens/feed_screen.dart';
+import 'package:vidmedia/screens/homepage.dart';
 
 class AddPost extends StatefulWidget {
-  const AddPost({super.key});
+  final bool? isloggedinbyphone;
+  const AddPost({required this.isloggedinbyphone});
 
   @override
   State<AddPost> createState() => _AddPostState();
@@ -112,8 +113,10 @@ class _AddPostState extends State<AddPost> {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(result)));
       } else {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => HomePage()));
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => HomePage(
+                  isloggedinviaphonenumber: widget.isloggedinbyphone,
+                )));
       }
       setState(() {
         _isLoading = false;
