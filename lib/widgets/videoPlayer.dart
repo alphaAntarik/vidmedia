@@ -29,26 +29,22 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     super.initState();
     _controller = VideoPlayerController.network(widget.videoUrl)
       ..initialize().then((_) {
-        setState(() {
-          // Ensure the first frame is shown
-        });
+        setState(() {});
         //_controller!.play();
       });
   }
 
   @override
   Widget build(BuildContext context) {
+    final dayk =
+        (DateTime.now().difference(DateTime.parse(widget.day)).inMinutes);
     return _controller!.value.isInitialized
         ? InkWell(
             onTap: () {
-              // Wrap the play or pause in a call to `setState`. This ensures the
-              // correct icon is shown.
               setState(() {
-                // If the video is playing, pause it.
                 if (_controller!.value.isPlaying) {
                   _controller!.pause();
                 } else {
-                  // If the video is paused, play it.
                   _controller!.play();
                 }
               });
@@ -101,7 +97,11 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                             style: TextStyle(color: Colors.white),
                           ),
                           Text(
-                            '${(DateTime.now().difference(DateTime.parse(widget.day))).toString().split(":")[0]} days ago',
+                            dayk / 60 < 1
+                                ? '${(dayk)} minutes ago'
+                                : dayk / 3600 < 1
+                                    ? '${(dayk / 60).toString().split('.')[0]} hours ago'
+                                    : '${(dayk / 3600).toString().split('.')[0]} days ago',
                             style: TextStyle(color: Colors.white),
                           ),
                         ],

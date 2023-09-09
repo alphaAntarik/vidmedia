@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'dart:io';
 
 import 'package:vidmedia/auth%20services/authmethods.dart';
+import 'package:vidmedia/screens/homepage.dart';
 import 'package:vidmedia/widgets/mobilrvarifypage.dart';
 import 'package:vidmedia/screens/authentication%20screens/signup_screen.dart';
 
@@ -37,10 +38,16 @@ class _LoginScreenState extends State<LoginScreen> {
       password: _passwordController.text,
     );
     if (result == 'successs') {
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+              builder: (context) => HomePage(
+                    isloggedinviaphonenumber: false,
+                  )),
+          (route) => false);
     } else {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(result)));
-      // showSnackBar(result, context);
     }
     setState(() {
       _isLoading = false;
@@ -57,7 +64,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      // bottomNavigationBar: _bottomBar(),
       body: SingleChildScrollView(child: _body()),
     );
   }
@@ -111,105 +117,18 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // Widget _userIDEditContainer() {
-  //   return new Container(
-  //     child: new TextField(
-  //       controller: _emailIdController,
-  //       decoration: new InputDecoration(
-  //           hintText: 'Phone number, email or username',
-  //           border: new OutlineInputBorder(
-  //             borderSide: new BorderSide(color: Colors.black),
-  //           ),
-  //           isDense: true),
-  //       style: _textStyleBlack,
-  //     ),
-  //   );
-  // }
-
-  // Widget _passwordEditContainer() {
-  //   return Container(
-  //     padding: EdgeInsets.only(top: 5.0),
-  //     child: TextField(
-  //       controller: _passwordController,
-  //       obscureText: true,
-  //       decoration: InputDecoration(
-  //           hintText: 'Password',
-  //           border: OutlineInputBorder(
-  //             borderSide: BorderSide(color: Colors.black),
-  //           ),
-  //           isDense: true),
-  //       style: _textStyleBlack,
-  //     ),
-  //   );
-  // }
-
   Widget _loginContainer() {
     return ElevatedButton(
       onPressed: _logInUser,
       child: _isLoading
           ? Center(
-              child: CircularProgressIndicator(
-                  //  color: Colors.white,
-                  ),
+              child: CircularProgressIndicator(),
             )
           : Text(
               "Log In",
-              // style: TextStyle(color: Colors.white),
             ),
     );
   }
-
-  // Widget _facebookContainer() {
-  //   return Container(
-  //     alignment: Alignment.center,
-  //     margin: EdgeInsets.only(top: 10.0),
-  //     width: 500.0,
-  //     height: 40.0,
-  //     child: GestureDetector(
-  //       onTap: null,
-  //       child: Text(
-  //         "Log in with facebook",
-  //         style: TextStyle(
-  //             color: Colors.purpleAccent, fontWeight: FontWeight.bold),
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // Widget _bottomBar() {
-  //   return Container(
-  //     alignment: Alignment.center,
-  //     height: 49.5,
-  //     child: Column(
-  //       children: <Widget>[
-  //         Column(
-  //           mainAxisAlignment: MainAxisAlignment.center,
-  //           children: <Widget>[
-  //             Container(
-  //               height: 1.0,
-  //               color: Colors.grey.withOpacity(0.7),
-  //             ),
-  //             Padding(
-  //                 padding: EdgeInsets.only(bottom: 0.5),
-  //                 child: Row(
-  //                   mainAxisAlignment: MainAxisAlignment.center,
-  //                   children: <Widget>[
-  //                     Text('Don\'t have an account?', style: _textStyleGrey),
-  //                     Container(
-  //                       child: TextButton(
-  //                         onPressed: () =>
-  //                             Navigator.pushNamed(context, SignupScreen.id),
-  //                         child: Text('Sign Up.', style: _textStyleGrey),
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 )),
-  //           ],
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   Widget _body() {
     return Container(
@@ -257,6 +176,16 @@ class _LoginScreenState extends State<LoginScreen> {
               maxLines: 1,
               controller: _passwordController),
           _loginContainer(),
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => SignupScreen()));
+                },
+                child: Text("Don't have an account? Register now!")),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -294,7 +223,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           ),
           MobileVarifyPage(),
-          // _facebookContainer()
         ],
       ),
     );

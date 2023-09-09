@@ -9,7 +9,6 @@ class PhoneCredentialBloc
   PhoneCredentialBloc() : super(PhoneCredentialInitial()) {
     on<PhoneCredentialReceivingEvent>((event, emit) {
       emit(PhoneCredentialloaded(credential: event.credential));
-      // TODO: implement event handler
     });
   }
 }

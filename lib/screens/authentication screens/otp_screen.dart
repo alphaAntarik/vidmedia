@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pinput/pinput.dart';
+import 'package:vidmedia/auth%20services/authmethods.dart';
 import 'package:vidmedia/models/usermodel.dart';
 import 'package:vidmedia/screens/authentication%20screens/sIgnup_with_phone.dart';
 import 'package:vidmedia/screens/homepage.dart';
@@ -28,7 +29,7 @@ class _OtpScreenState extends State<OtpScreen> {
   @override
   Widget build(BuildContext context) {
     final isLoading = false;
-    // Provider.of<AuthProvider>(context, listen: true).isLoading;
+
     return Scaffold(
       body: SafeArea(
         child: isLoading == true
@@ -163,24 +164,49 @@ class _OtpScreenState extends State<OtpScreen> {
     final credential = PhoneAuthProvider.credential(
         verificationId: widget.verificationId, smsCode: userOtp);
 
-    BlocProvider.of<PhoneCredentialBloc>(context).add(
-        PhoneCredentialReceivingEvent(credential: credential.verificationId));
-
     try {
       await auth.signInWithCredential(credential);
+      List<UserModel>? userlist;
 
-      final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-      DocumentSnapshot snap = await _firestore
-          .collection('users')
-          .doc(credential.verificationId)
-          .get();
+      QuerySnapshot querySnapshot =
+          await FirebaseFirestore.instance.collection('users').get();
 
-      //String? email = UserModel.fromSnap(snap)!.email;
+      userlist = querySnapshot.docs.map((doc) {
+        return UserModel(
+          image_url: doc['image_url'],
+          uid: doc['uid'],
+          name: doc['name'],
+          videos: doc['videos'],
+          phoneNumber: doc['phoneNumber'],
+          email: doc['email'],
+        );
+      }).toList();
 
-      // if (snap.e == null) {
+      UserModel foundUser = userlist.firstWhere(
+        (user) => user.phoneNumber == phonenumber,
+        orElse: () => UserModel(
+          image_url: "not found",
+          uid: "not found",
+          name: "not found",
+          videos: [],
+          phoneNumber: "not found",
+          email: "not found",
+        ),
+      );
 
-      // }
-      if (snap['email'] != null) {
+      if (foundUser.name == "not found") {
+        BlocProvider.of<PhoneCredentialBloc>(context).add(
+            PhoneCredentialReceivingEvent(credential: widget.verificationId));
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+                builder: (context) => SignupWithPhone(
+                    mobilenumber: phonenumber, id: widget.verificationId)),
+            (route) => false);
+      } else {
+        BlocProvider.of<PhoneCredentialBloc>(context)
+            .add(PhoneCredentialReceivingEvent(credential: foundUser.uid));
+
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
@@ -193,50 +219,8 @@ class _OtpScreenState extends State<OtpScreen> {
       setState(() {
         _isLoading = true;
       });
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-              builder: (context) => SignupWithPhone(
-                    mobilenumber: phonenumber,
-                    id: credential.verificationId,
-                  )),
-          (route) => false);
+
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
     }
-    //final ap = Provider.of<AuthProvider>(context, listen: false);
-    // ap.verifyOtp(
-    //   context: context,
-    //   verificationId: widget.verificationId,
-    //   userOtp: userOtp,
-    //   onSuccess: () {
-    //     // checking whether user exists in the db
-    //     ap.checkExistingUser().then(
-    //       (value) async {
-    //         if (value == true) {
-    //           // user exists in our app
-    //           ap.getDataFromFirestore().then(
-    //                 (value) => ap.saveUserDataToSP().then(
-    //                       (value) => ap.setSignIn().then(
-    //                             (value) => Navigator.pushAndRemoveUntil(
-    //                                 context,
-    //                                 MaterialPageRoute(
-    //                                   builder: (context) => const HomeScreen(),
-    //                                 ),
-    //                                 (route) => false),
-    //                           ),
-    //                     ),
-    //               );
-    //         } else {
-    //           // new user
-    //           Navigator.pushAndRemoveUntil(
-    //               context,
-    //               MaterialPageRoute(
-    //                   builder: (context) => const UserInfromationScreen()),
-    //               (route) => false);
-    //         }
-    //       },
-    //     );
-    //},
-    //);
   }
 }

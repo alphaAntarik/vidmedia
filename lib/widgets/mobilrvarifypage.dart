@@ -171,7 +171,6 @@ class _MobileVarifyPageState extends State<MobileVarifyPage> {
                                   _isloading = false;
                                 });
                               });
-                          //sendPhoneNumber()
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               content:
@@ -183,34 +182,11 @@ class _MobileVarifyPageState extends State<MobileVarifyPage> {
                           : Text("Varify your number")),
                 ),
                 const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => SignupScreen()));
-                      },
-                      child: Text("Don't have an account? Register now!")),
-                )
-                //   child: CustomButton(
-                //       text: "Login", onPressed: () => sendPhoneNumber()),
-                // ),
               ],
             ),
           ),
         ),
       ),
     );
-  }
-
-  void sendPhoneNumber() {
-    String phoneNumber = phoneController.text.trim();
-    // BlocProvider.of<UserAuthBloc>(context).add(UserAuthEvent(
-    //     context: context,
-    //     isSignedIn: false,
-    //     phoneNumber: "+${selectedCountry.phoneCode}$phoneNumber"));
   }
 }

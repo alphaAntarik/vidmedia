@@ -10,8 +10,6 @@ class AuthMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  //mobile varification
-
   //get user details
   Future<UserModel?> getUserDetails() async {
     User currentUser = _auth.currentUser!;
@@ -38,38 +36,13 @@ class AuthMethods {
     }
   }
 
-  // //get mobile numbers
-  // Future<List<DocumentSnapshot>> getUserNumbers() async {
-  //   try {
-  //     QuerySnapshot querySnapshot =
-  //         await FirebaseFirestore.instance.collection('users').get();
-  //     List<DocumentSnapshot> documents = querySnapshot.docs;
-  //     return documents;
-  //   } catch (e) {
-  //     print("Error retrieving data: $e");
-  //     return [];
-  //   }
-  // }
-
-  // Future<List<FeedModel?>> getFeedDetails() async {
-  //   User currentUser = _auth.currentUser!;
-  //   CollectionReference _collectionRef =
-  //       FirebaseFirestore.instance.collection('collection');
-  //   QuerySnapshot querySnapshot = await _collectionRef.get();
-  //   // Get data from docs and convert map to List
-  //   final allData = querySnapshot.docs.map((doc) => doc.data()).toList();
-  //   print(allData);
-  //   return allData;
-  // }
-
   //upload dp
   Future<String> uploadPhoto(File? imageFile) async {
-    User currentUser = _auth.currentUser!;
     try {
       final firebase_storage.Reference storageRef = firebase_storage
           .FirebaseStorage.instance
           .ref()
-          .child('user_profile_images/${currentUser.uid}.jpg');
+          .child('user_profile_images/${DateTime.now()}.jpg');
 
       await storageRef.putFile(imageFile!);
       final String downloadURL = await storageRef.getDownloadURL();
@@ -80,21 +53,28 @@ class AuthMethods {
   }
 
   //upload video
-  Future<String> uploadVideo(File? videoFile, String? name, String? title,
-      String? genre, String? dayadded, String cityname) async {
-    UserModel? currentUser = await getUserDetails();
+  Future<String> uploadVideo(
+      File? videoFile,
+      String? name,
+      String? title,
+      String? genre,
+      String? dayadded,
+      String cityname,
+      String uid,
+      UserModel? usermodel) async {
     try {
-      final firebase_storage.Reference storageRef =
-          firebase_storage.FirebaseStorage.instance.ref().child(
-              'users_video_folder/${name!.split(".")[0]}+${DateTime.now()}.mp4');
+      final firebase_storage.Reference storageRef = firebase_storage
+          .FirebaseStorage.instance
+          .ref()
+          .child('users_video_folder/$title+${DateTime.now()}.mp4');
 
       await storageRef.putFile(videoFile!);
       final String downloadURL = await storageRef.getDownloadURL();
       FeedModel feedModel = FeedModel(
-          videotitle: name,
-          name: currentUser!.name,
-          uid: currentUser.uid,
-          user_dp_link: currentUser.image_url,
+          videotitle: name!,
+          name: usermodel!.name,
+          uid: uid,
+          user_dp_link: usermodel.image_url,
           video_link: downloadURL,
           location: cityname,
           title: title,
@@ -103,7 +83,7 @@ class AuthMethods {
 
       await _firestore
           .collection('video_feed')
-          .doc(currentUser.uid + '${DateTime.now()}')
+          .doc(uid + '${DateTime.now()}')
           .set(
             feedModel.toJson(),
           );
@@ -165,17 +145,22 @@ class AuthMethods {
     return result;
   }
 
-  Future<String> update(File? videofile, String? name, String? title,
-      String? genre, String? dayadded, String cityname) async {
+  Future<String> update(
+      File? videofile,
+      String? name,
+      String? title,
+      String? genre,
+      String? dayadded,
+      String cityname,
+      String userid,
+      UserModel? userModel) async {
     String result = 'Some error occurred';
-    // User currentUser = _auth.currentUser!;
-    UserModel? userModel = await getUserDetails();
 
-    userModel!.videos.add(
-        await uploadVideo(videofile, name, title, genre, dayadded, cityname));
+    userModel!.videos.add(await uploadVideo(
+        videofile, name, title, genre, dayadded, cityname, userid, userModel));
 
     try {
-      await _firestore.collection('users').doc(userModel.uid).update({
+      await _firestore.collection('users').doc(userid).update({
         'videos': userModel.videos,
       });
 

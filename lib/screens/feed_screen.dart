@@ -5,7 +5,8 @@ import 'package:vidmedia/auth%20services/authmethods.dart';
 import 'package:vidmedia/widgets/videoPlayer.dart';
 
 class FeedScreen extends StatefulWidget {
-  const FeedScreen({super.key});
+  final String? selectedValue;
+  const FeedScreen({required this.selectedValue});
 
   @override
   State<FeedScreen> createState() => _FeedScreenState();
@@ -18,7 +19,7 @@ class _FeedScreenState extends State<FeedScreen> {
       future: AuthMethods().getCollectionData(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
+          return Scaffold(body: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Text("Error: ${snapshot.error}");
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -29,10 +30,20 @@ class _FeedScreenState extends State<FeedScreen> {
             itemCount: documents!.length,
             scrollDirection: Axis.vertical,
             itemBuilder: (context, index) {
-              return
-                  // Text(documents[index]
-                  //     ['videotitle']),
-                  ListTile(
+              if (widget.selectedValue == "Oldest first") {
+                return ListTile(
+                  title: VideoPlayerScreen(
+                    videoUrl: documents[index]['video_link'],
+                    videoTitle: documents[index]['title'],
+                    userdp: documents[index]['user_dp_link'],
+                    location: documents[index]['location'],
+                    genre: documents[index]['genre'],
+                    day: documents[index]['dayadded'],
+                  ),
+                );
+              }
+
+              return ListTile(
                 title: VideoPlayerScreen(
                   videoUrl: documents[documents.length - 1 - index]
                       ['video_link'],
@@ -43,8 +54,7 @@ class _FeedScreenState extends State<FeedScreen> {
                   genre: documents[documents.length - 1 - index]['genre'],
                   day: documents[documents.length - 1 - index]['dayadded'],
                 ),
-              ) // Replace with your field name
-                  ;
+              );
             },
           );
         }

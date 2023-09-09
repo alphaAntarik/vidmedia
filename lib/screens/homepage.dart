@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vidmedia/screens/addpost_screen.dart';
 
 import 'package:vidmedia/screens/feed_screen.dart';
+import 'package:vidmedia/screens/searchscreen.dart';
 
 import 'package:vidmedia/screens/user_details.screen.dart';
 
@@ -14,13 +15,57 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  //const HomePage({super.key});
+  String? selectedValue;
+  bool isDropdownOpen = false;
+
+  List<String> dropdownItems = ['Newest first', 'Oldest first'];
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.search),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SearchScreen()),
+                );
+              },
+            ),
+            TextButton(
+              child: isDropdownOpen
+                  ? Container(
+                      width: 200,
+                      child: DropdownButton<String>(
+                        isExpanded: true,
+                        value: selectedValue,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedValue = newValue;
+                            isDropdownOpen = !isDropdownOpen;
+                          });
+                        },
+                        items: dropdownItems.map((String item) {
+                          return DropdownMenuItem<String>(
+                            value: item,
+                            child: Text(item),
+                          );
+                        }).toList(),
+                      ),
+                    )
+                  : Icon(Icons.menu),
+              onPressed: () {
+                setState(() {
+                  isDropdownOpen = !isDropdownOpen;
+                });
+              },
+            ),
+          ],
           title: Text("Vidmedia"),
           bottom: TabBar(tabs: [
             Tab(icon: Icon(Icons.list_rounded), text: "Feed"),
@@ -29,7 +74,9 @@ class _HomePageState extends State<HomePage> {
           ]),
         ),
         body: TabBarView(children: [
-          FeedScreen(),
+          FeedScreen(
+            selectedValue: selectedValue,
+          ),
           AddPost(
             isloggedinbyphone: widget.isloggedinviaphonenumber,
           ),
@@ -37,13 +84,6 @@ class _HomePageState extends State<HomePage> {
             isloggedinbyphone: widget.isloggedinviaphonenumber,
           )
         ]),
-        // Center(
-        //     child: Column(
-        //   children: [
-        //     Text("Home page"),
-        //     ElevatedButton(onPressed: _signOut, child: Text("Log out"))
-        //   ],
-        // ))),
       ),
     );
   }

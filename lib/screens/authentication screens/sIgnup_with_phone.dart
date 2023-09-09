@@ -29,14 +29,12 @@ class _SignupWithPhoneState extends State<SignupWithPhone> {
   final passwordController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  //String? _phoneNumber;
-
   @override
   void dispose() {
     super.dispose();
     nameController.dispose();
     emailController.dispose();
-    //mobileController.dispose();
+
     passwordController.dispose();
   }
 
@@ -84,20 +82,7 @@ class _SignupWithPhoneState extends State<SignupWithPhone> {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text("$err")));
       }
-      // Logging in the user w/ Firebase
-      // String result = await AuthMethods().signUpUser(
-      //     name: nameController.text.trim(),
-      //     email: emailController.text.trim(),
-      //     password: passwordController.text.trim(),
-      //     phoneNumber: _phoneNumber,
-      //     image_url: _userImageFile);
-      // if (result != 'success') {
-      //   ScaffoldMessenger.of(context)
-      //       .showSnackBar(SnackBar(content: Text(result)));
-      //   //showSnackBar(result, context);
-      // } else {
-      //   Navigator.pop(context);
-      // }
+
       setState(() {
         _isLoading = false;
       });
@@ -128,10 +113,6 @@ class _SignupWithPhoneState extends State<SignupWithPhone> {
       setState(() async {
         downloadURL = await storageRef.getDownloadURL();
       });
-
-      // Here, you can update the user's profile with the downloadURL
-      // For example, you can store this URL in Firestore to associate it with the user.
-      // Update the Firestore document with the URL as needed.
     } catch (e) {
       print('Error uploading image: $e');
     }
@@ -178,7 +159,6 @@ class _SignupWithPhoneState extends State<SignupWithPhone> {
                         inputType: TextInputType.name,
                         maxLines: 1,
                         controller: nameController),
-
                     Padding(
                       padding: EdgeInsets.only(
                         bottom: 10,
@@ -208,48 +188,9 @@ class _SignupWithPhoneState extends State<SignupWithPhone> {
                             borderRadius: BorderRadius.circular(10),
                             borderSide: const BorderSide(color: Colors.black12),
                           ),
-                          // prefixIcon: Container(
-                          //   padding: const EdgeInsets.all(8.0),
-                          //   child: InkWell(
-                          //     onTap: () {
-                          //       showCountryPicker(
-                          //           context: context,
-                          //           countryListTheme:
-                          //               const CountryListThemeData(
-                          //             bottomSheetHeight: 550,
-                          //           ),
-                          //           onSelect: (value) {
-                          //             setState(() {
-                          //               selectedCountry = value;
-                          //             });
-                          //           });
-                          //     },
-                          //     child: Text(
-                          //       "${selectedCountry.flagEmoji} + ${selectedCountry.phoneCode}",
-                          //       style: const TextStyle(
-                          //         fontSize: 18,
-                          //         color: Colors.black,
-                          //         fontWeight: FontWeight.bold,
-                          //       ),
-                          //     ),
-                          //   ),
-                          // ),
                         ),
                       ),
                     ),
-                    // Padding(
-                    //   padding: EdgeInsets.symmetric(
-                    //     horizontal: 30.0,
-                    //     vertical: 10.0,
-                    //   ),
-                    //   child: TextFormField(
-                    //     decoration: InputDecoration(labelText: 'Phone number'),
-                    //     validator: (input) => input!.trim().isEmpty
-                    //         ? 'Please enter a valid Phone number'
-                    //         : null,
-                    //     onSaved: (input) => _phoneNumber = input!,
-                    //   ),
-                    // ),
                     textFeld(
                         hintText: "xys@gmail.com",
                         icon: Icons.email_outlined,
@@ -262,33 +203,6 @@ class _SignupWithPhoneState extends State<SignupWithPhone> {
                         inputType: TextInputType.visiblePassword,
                         maxLines: 1,
                         controller: passwordController),
-                    // Padding(
-                    //   padding: EdgeInsets.symmetric(
-                    //     horizontal: 30.0,
-                    //     vertical: 10.0,
-                    //   ),
-                    //   child: TextFormField(
-                    //     decoration: InputDecoration(labelText: 'Email'),
-                    //     validator: (input) => !input!.contains('@')
-                    //         ? 'Please enter a valid email'
-                    //         : null,
-                    //     onSaved: (input) => _email = input!,
-                    //   ),
-                    // ),
-                    // Padding(
-                    //   padding: EdgeInsets.symmetric(
-                    //     horizontal: 30.0,
-                    //     vertical: 10.0,
-                    //   ),
-                    //   child: TextFormField(
-                    //     decoration: InputDecoration(labelText: 'Password'),
-                    //     validator: (input) => input!.length < 6
-                    //         ? 'Must be at least 6 characters'
-                    //         : null,
-                    //     onSaved: (input) => _password = input!,
-                    //     obscureText: true,
-                    //   ),
-                    // ),
                     SizedBox(height: 20.0),
                     Padding(
                       padding: EdgeInsets.only(
@@ -297,16 +211,13 @@ class _SignupWithPhoneState extends State<SignupWithPhone> {
                       ),
                       child: _isLoading
                           ? Center(
-                              child: CircularProgressIndicator(
-                                  // color: Colors.white,
-                                  ),
+                              child: CircularProgressIndicator(),
                             )
                           : TextButton(
                               onPressed: () => _signUp(),
                               child: Text(
                                 'Sign Up',
                                 style: TextStyle(
-                                  // color: Colors.white,
                                   fontSize: 18.0,
                                 ),
                               ),

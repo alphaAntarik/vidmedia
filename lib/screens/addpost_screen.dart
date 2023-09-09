@@ -1,11 +1,15 @@
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
 import 'package:vidmedia/auth%20services/authmethods.dart';
+import 'package:vidmedia/bloc/phone_credential_bloc.dart';
+import 'package:vidmedia/models/usermodel.dart';
 import 'package:vidmedia/screens/feed_screen.dart';
 import 'package:vidmedia/screens/homepage.dart';
 
@@ -38,6 +42,9 @@ class _AddPostState extends State<AddPost> {
 
   String? _currentAddress;
   Position? _currentPosition;
+
+  String? uid;
+  UserModel? userModel;
 
   Future<bool> _handleLocationPermission() async {
     bool serviceEnabled;
@@ -108,7 +115,9 @@ class _AddPostState extends State<AddPost> {
           titleController.text.trim(),
           genreController.text.trim(),
           DateTime.now().toString(),
-          _currentAddress!);
+          _currentAddress!,
+          uid!,
+          userModel);
       if (result != 'success') {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(result)));
@@ -223,22 +232,52 @@ class _AddPostState extends State<AddPost> {
                 child: CircularProgressIndicator(),
               ),
             if (_userVideoFile != null)
-              ElevatedButton(
-                  onPressed: () async {
-                    if (titleController.text == "" ||
-                        genreController.text == "") {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          content: Text('Upload all the details.')));
-                      return;
-                    }
+              BlocBuilder<PhoneCredentialBloc, PhoneCredentialState>(
+                builder: (context, state) {
+                  if (state is PhoneCredentialloaded) {
+                    return ElevatedButton(
+                        onPressed: () {
+                          if (titleController.text == "" ||
+                              genreController.text == "") {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Upload all the details.')));
+                          }
+                          setState(() async {
+                            uid = state.credential;
+                            userModel = await AuthMethods()
+                                .getPhoneUserDetails(state.credential);
+                            _getCurrentPosition();
 
-                    _getCurrentPosition();
+                            _uploadVideo(context);
+                          });
+                        },
+                        child: Text(_isLoading
+                            ? "Got it, press to upload"
+                            : "Access Location"));
+                  } else {
+                    return ElevatedButton(
+                        onPressed: () {
+                          if (titleController.text == "" ||
+                              genreController.text == "") {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Upload all the details.')));
+                          }
+                          setState(() async {
+                            uid = FirebaseAuth.instance.currentUser!.uid;
+                            userModel = await AuthMethods().getUserDetails();
+                            _getCurrentPosition();
 
-                    _uploadVideo(context);
-                  },
-                  child: Text(_isLoading
-                      ? "Got it, press to upload"
-                      : "Access Location")),
+                            _uploadVideo(context);
+                          });
+                        },
+                        child: Text(_isLoading
+                            ? "Got it, press to upload"
+                            : "Access Location"));
+                  }
+                },
+              ),
             if (_userVideoFile == null)
               Center(
                 child: Text("Upload a video"),
