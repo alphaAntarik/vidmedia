@@ -28,37 +28,34 @@ class _ProfileState extends State<Profile> {
       }
     }
 
-    return Scaffold(
-      appBar: AppBar(),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 15, left: 15),
-                  child: CircleAvatar(
-                    backgroundImage: NetworkImage(widget.userdp),
-                    radius: 60,
-                  ),
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 15, left: 15),
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(widget.userdp),
+                  radius: 60,
                 ),
-                Padding(
-                  padding: EdgeInsets.only(left: 30),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(widget.username),
-                      Text(widget.email),
-                    ],
-                  ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 30),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(widget.username),
+                    Text(widget.email),
+                  ],
                 ),
-              ],
-            ),
-            ElevatedButton(onPressed: _signOut, child: Text("Log out"))
-          ],
-        ),
+              ),
+            ],
+          ),
+          ElevatedButton(onPressed: _signOut, child: Text("Log out"))
+        ],
       ),
     );
   }
